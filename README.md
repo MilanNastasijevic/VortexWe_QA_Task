@@ -87,14 +87,14 @@ This script will:
 
 ---
 
-## 🚀 Run in GitHub Actions CI
+## 🚀 Run in GitHub Actions CI (with Docker)
 
 A preconfigured GitHub Actions workflow is recommended to automate test runs and publish Allure reports.
 
-### 1. Add `.github/workflows/tests.yml`:
+### 1. `.github/workflows/tests.yml`:
 
 ```yaml
-name: Run Playwright + TestNG Tests
+name: Run Playwright Tests with Docker
 
 on:
   push:
@@ -110,25 +110,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+      - name: Build Docker image
+        run: docker build -t playwright-tests .
 
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-
-      - name: Build and test
-        run: mvn clean test
+      - name: Run tests in container
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/target:/app/target \
+            playwright-tests clean test
 
       - name: Generate Allure report
         run: ./generate-allure-report.sh
 
-      - name: Upload Allure report as artifact
+      - name: Upload Allure report
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
@@ -166,13 +160,20 @@ https://<your-username>.github.io/<your-repo>/
 ```Dockerfile
 FROM maven:3.9.4-eclipse-temurin-17
 
+# Install dependencies needed by Playwright browsers
+RUN apt-get update && apt-get install -y \
+    wget unzip curl gnupg \
+    libgtk-3-0 libgtk-4-1 libnss3 libx11-xcb1 libxcomposite1 \
+    libxdamage1 libxrandr2 libgbm1 libxss1 libasound2 \
+    libatk1.0-0 libatk-bridge2.0-0 libxinerama1 libxext6 \
+    libxfixes3 libxrender1 libxcb1 libx11-6 \
+    && apt-get clean
+
 WORKDIR /app
 COPY . /app
 
-# Optional: install Allure CLI manually if needed
-RUN apt-get update && \
-    apt-get install -y unzip curl && \
-    curl -Lo allure.zip https://github.com/allure-framework/allure2/releases/download/2.24.0/allure-2.24.0.zip && \
+# Optional: install Allure CLI
+RUN curl -Lo allure.zip https://github.com/allure-framework/allure2/releases/download/2.24.0/allure-2.24.0.zip && \
     unzip allure.zip -d /opt/allure && \
     ln -s /opt/allure/allure-2.24.0/bin/allure /usr/local/bin/allure
 
@@ -209,7 +210,45 @@ project-root/
 ├── generate-allure-report.sh
 ├── Dockerfile
 ├── pom.xml
+├── .gitignore
 └── README.md
+```
+
+---
+
+## 📄 .gitignore
+
+```
+# Maven target directory
+/target/
+
+# IDE files
+/.idea/
+/.vscode/
+*.iml
+*.classpath
+*.project
+*.settings/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Allure reports
+/allure-report/
+/allure-results/
+/target/allure-report/
+/target/allure-results*/
+
+# GitHub Pages output
+/public/
+
+# Temp or screenshots
+*.png
+*.tmp
 ```
 
 ---

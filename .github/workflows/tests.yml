@@ -1,4 +1,4 @@
-name: Run Playwright + TestNG Tests
+name: Run Playwright Tests with Docker
 
 on:
   push:
@@ -14,25 +14,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+      - name: Build Docker image
+        run: docker build -t playwright-tests .
 
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-
-      - name: Build and test
-        run: mvn clean test
+      - name: Run tests in container
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/target:/app/target \
+            playwright-tests clean test
 
       - name: Generate Allure report
         run: ./generate-allure-report.sh
 
-      - name: Upload Allure report as artifact
+      - name: Upload Allure report
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
@@ -51,7 +45,7 @@ jobs:
           path: public
 
       - name: Deploy Allure report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
