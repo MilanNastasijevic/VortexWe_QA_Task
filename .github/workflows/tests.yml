@@ -21,7 +21,7 @@ jobs:
         run: |
           docker run --rm \
             -v ${{ github.workspace }}/target:/app/target \
-            playwright-tests clean test
+            playwright-tests test
 
       - name: Generate Allure report
         run: ./generate-allure-report.sh
@@ -48,4 +48,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
           publish_dir: ./public
