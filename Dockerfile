@@ -16,7 +16,9 @@ COPY src ./src
 RUN mvn compile
 
 # ✅ Install Playwright dependencies
-RUN mvn exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install-deps"
+mvn compile exec:java \
+  -Dexec.mainClass=com.microsoft.playwright.CLI \
+  -Dexec.args="install-deps"
 
 # Copy the rest (in case anything else changed)
 COPY . .

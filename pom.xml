@@ -65,6 +65,13 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
+
+            <!-- ✅ Exec plugin to run Playwright CLI -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+            </plugin>
         </plugins>
     </build>
 </project>
