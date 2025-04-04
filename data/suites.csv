@@ -1,3 +1,3 @@
 "Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
-"passed","Fri Apr 04 17:21:17 UTC 2025","Fri Apr 04 17:21:40 UTC 2025","22352","Board Test Suite","Cross-Browser Kanban Tests","Jira.Board","Jira.Board","changeTileStatusTest","changeTileStatusTest [CHROMIUM]","Change tile status on multiple browsers"
-"passed","Fri Apr 04 17:21:17 UTC 2025","Fri Apr 04 17:21:41 UTC 2025","23884","Board Test Suite","Cross-Browser Kanban Tests","Jira.Board","Jira.Board","changeTileStatusTest","changeTileStatusTest [FIREFOX]","Change tile status on multiple browsers"
+"passed","Fri Apr 04 20:02:15 UTC 2025","Fri Apr 04 20:02:41 UTC 2025","25494","Board Test Suite","Cross-Browser Kanban Tests","Jira.Board","Jira.Board","changeTileStatusTest","changeTileStatusTest [FIREFOX]","Change tile status on multiple browsers"
+"passed","Fri Apr 04 20:02:15 UTC 2025","Fri Apr 04 20:02:39 UTC 2025","24087","Board Test Suite","Cross-Browser Kanban Tests","Jira.Board","Jira.Board","changeTileStatusTest","changeTileStatusTest [CHROMIUM]","Change tile status on multiple browsers"
