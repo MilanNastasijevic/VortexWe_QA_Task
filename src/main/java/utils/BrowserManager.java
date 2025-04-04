@@ -15,7 +15,7 @@ public class BrowserManager {
     private static final ThreadLocal<Page> pageThreadLocal = new ThreadLocal<>();
 
     public enum BrowserTypeEnum {
-        CHROMIUM, FIREFOX, WEBKIT
+        CHROMIUM, FIREFOX
     }
 
     public static void launchBrowser(BrowserTypeEnum browserType, boolean headless) {
@@ -31,9 +31,6 @@ public class BrowserManager {
                 break;
             case FIREFOX:
                 browser = playwright.firefox().launch(options);
-                break;
-            case WEBKIT:
-                browser = playwright.webkit().launch(options);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported browser: " + browserType);

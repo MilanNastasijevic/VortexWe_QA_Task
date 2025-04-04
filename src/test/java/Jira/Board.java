@@ -21,8 +21,7 @@ public class Board {
     public Object[][] provideBrowsers() {
         return new Object[][]{
                 {BrowserManager.BrowserTypeEnum.CHROMIUM},
-                {BrowserManager.BrowserTypeEnum.FIREFOX},
-                {BrowserManager.BrowserTypeEnum.WEBKIT}
+                {BrowserManager.BrowserTypeEnum.FIREFOX}
         };
     }
 
