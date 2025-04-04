@@ -11,7 +11,7 @@ done
 
 echo "🧠 Re-writing metadata"
 # Call your Java utility that writes to target/allure-results
-mvn exec:java -Dexec.mainClass="utils.AllureMetadataWriter"
+mvn exec:java -Dexec.mainClass="testUtils.AllureMetadataWriter"
 
 echo "📊 Generating Allure report"
 allure generate target/allure-results --clean -o target/allure-report
