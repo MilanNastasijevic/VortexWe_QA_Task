@@ -1,24 +1,20 @@
 FROM maven:3.9.4-eclipse-temurin-17
 
-# Install essential tools
+# Install required system packages for Maven & Playwright
 RUN apt-get update && apt-get install -y \
-    wget curl unzip gnupg coreutils \
+    curl unzip gnupg coreutils \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy pom.xml and resolve dependencies
-COPY pom.xml .
-RUN mvn dependency:resolve
-
-# Copy source and compile
+# Copy project files and resolve dependencies
+COPY pom.xml ./
 COPY src ./src
-RUN mvn compile
+COPY . .
+RUN mvn clean compile
 
-# Install system dependencies required by Playwright
+# ✅ Install Playwright's native dependencies
 RUN mvn exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install-deps"
 
-# Copy the rest of the project
-COPY . .
-
-ENTRYPOINT ["mvn"]
+# Run tests (Allure metadata will be written from @AfterSuite hook)
+ENTRYPOINT ["mvn", "test"]
