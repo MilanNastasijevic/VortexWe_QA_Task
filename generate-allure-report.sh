@@ -11,20 +11,23 @@ find target -type d -name "allure-results-*" | while read dir; do
   cp -r "$dir"/* target/allure-results/ 2>/dev/null
 done
 
-echo " Re-writing metadata..."
-mvn -q test-compile exec:java -Dexec.mainClass="src.test.java.testUtils.AllureMetadataWriter"
+echo " Re-writing metadata from testUtils.AllureMetadataWriter"
+mvn -q test-compile exec:java -Dexec.mainClass="testUtils.AllureMetadataWriter"
 
-# Use a folder outside of target to avoid permission issues
-REPORT_DIR="allure-report"
-
-echo " Generating Allure report to $REPORT_DIR"
+#  Use a writable output directory to avoid CI permission issues
+REPORT_DIR="target/allure-report"
+echo "📊 Generating Allure report to $REPORT_DIR"
 rm -rf $REPORT_DIR
+mkdir -p $REPORT_DIR
 allure generate target/allure-results --clean -o $REPORT_DIR
 
-# Only try to open locally (skip in CI)
+echo " Generating Allure report to $REPORT_DIR"
+allure generate target/allure-results --clean -o $REPORT_DIR
+
+# Only open locally, not in CI
 if [ -z "$CI" ]; then
-  echo " Opening Allure report locally..."
+  echo " Opening Allure report..."
   allure open $REPORT_DIR
 else
-  echo " Allure report generated for CI at $REPORT_DIR"
+  echo " Allure report generated at: $REPORT_DIR"
 fi
