@@ -1,0 +1,32 @@
+stages:
+  - test
+  - report
+  - deploy
+
+variables:
+  ALLURE_RESULTS: target/allure-results
+  ALLURE_REPORT: target/allure-report
+
+test:
+  stage: test
+  image: maven:3.9.4-eclipse-temurin-17
+  script:
+    - apt-get update && apt-get install -y curl unzip
+    - curl -Lo allure.zip https://github.com/allure-framework/allure2/releases/download/2.24.0/allure-2.24.0.zip
+    - unzip allure.zip -d /opt/
+    - export PATH=$PATH:/opt/allure-2.24.0/bin
+    - mvn clean test
+    - ./generate-allure-report.sh
+  artifacts:
+    paths:
+      - target/allure-report
+
+pages:
+  stage: deploy
+  script:
+    - mv target/allure-report public
+  artifacts:
+    paths:
+      - public
+  only:
+    - main

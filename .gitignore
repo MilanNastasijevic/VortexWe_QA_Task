@@ -1,0 +1,30 @@
+# Maven target directory
+/target/
+
+# IntelliJ / Eclipse / VS Code
+/.idea/
+/.vscode/
+/*.iml
+*.classpath
+*.project
+*.settings/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Allure reports
+/allure-report/
+/allure-results/
+/target/allure-report/
+/target/allure-results*/
+
+# GitHub Pages output (optional if generated locally)
+/public/
+
+# Test output screenshots or temp
+*.png
+*.tmp
