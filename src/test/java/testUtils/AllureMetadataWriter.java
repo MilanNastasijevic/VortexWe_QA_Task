@@ -14,12 +14,17 @@ public class AllureMetadataWriter {
 
     private static final Path RESULTS_DIR = Paths.get("target/allure-results");
 
+    //  Add this main method so it can be executed by Maven exec:java
+    public static void main(String[] args) {
+        writeAllureMetadata();
+    }
+
     public static void writeAllureMetadata() {
         try {
             Files.createDirectories(RESULTS_DIR);
             writeEnvironmentProperties();
             writeExecutorJson();
-            System.out.println("✅ Allure metadata written.");
+            System.out.println(" Allure metadata written.");
         } catch (Exception e) {
             System.out.println(" Failed to write Allure metadata: " + e.getMessage());
         }
@@ -36,14 +41,15 @@ public class AllureMetadataWriter {
         }
     }
 
+
     private static void writeExecutorJson() throws IOException {
         Map<String, String> executor = new HashMap<>();
 
         String ciType = detectCI();
         executor.put("name", ciType);
         executor.put("type", "CI");
-        executor.put("buildName", getEnv("CI_JOB_NAME", "Local Run"));
-        executor.put("buildUrl", getEnv("CI_JOB_URL", getEnv("BUILD_URL", "http://localhost:8080/job/local-run")));
+        executor.put("buildName", getEnv("GITHUB_JOB", "Local Run"));
+        executor.put("buildUrl", getEnv("GITHUB_RUN_URL", "http://localhost:8080/job/local-run"));
         executor.put("reportUrl", getEnv("ALLURE_REPORT_URL", "http://localhost:8080/job/local-run/allure"));
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -58,8 +64,7 @@ public class AllureMetadataWriter {
     }
 
     private static String detectCI() {
-        if (System.getenv("GITLAB_CI") != null) return "GitLab CI";
-        if (System.getenv("JENKINS_HOME") != null) return "Jenkins";
+        if (System.getenv("GITHUB_ACTIONS") != null) return "GitHub Actions";
         return "Local";
     }
 }
