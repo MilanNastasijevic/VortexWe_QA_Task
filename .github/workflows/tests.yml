@@ -23,18 +23,17 @@ jobs:
             -v ${{ github.workspace }}/target:/app/target \
             playwright-tests test
 
-      - name: Install Allure CLI
+      - name: Install Allure CLI (skip if already installed)
         run: |
-          curl -Lo allure.zip https://github.com/allure-framework/allure2/releases/download/2.24.0/allure-2.24.0.zip
-          unzip -o allure.zip -d /opt/allure
-          sudo ln -s /opt/allure/allure-2.24.0/bin/allure /usr/local/bin/allure
-
-      - name: Install Allure CLI
-        run: |
-          curl -Lo allure.zip https://github.com/allure-framework/allure2/releases/download/2.24.0/allure-2.24.0.zip
-          unzip -o allure.zip -d /opt/allure
-          sudo ln -s /opt/allure/allure-2.24.0/bin/allure /usr/local/bin/allure
-
+          if ! command -v allure &> /dev/null; then
+            echo "🔧 Installing Allure CLI..."
+            curl -Lo allure.zip https://github.com/allure-framework/allure2/releases/download/2.24.0/allure-2.24.0.zip
+            unzip -o allure.zip -d /opt/allure
+            sudo ln -sf /opt/allure/allure-2.24.0/bin/allure /usr/local/bin/allure
+            rm allure.zip
+          else
+            echo "✅ Allure CLI already installed"
+          fi
 
       - name: Generate Allure report
         run: ./generate-allure-report.sh
