@@ -22,7 +22,7 @@ public class BrowserManager {
         Playwright playwright = Playwright.create();
         playwrightThreadLocal.set(playwright);
 
-        BrowserType.LaunchOptions options = new BrowserType.LaunchOptions().setHeadless(false);
+        BrowserType.LaunchOptions options = new BrowserType.LaunchOptions().setHeadless(headless);
         Browser browser;
 
         switch (browserType) {
