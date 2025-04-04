@@ -17,6 +17,7 @@
 Thumbs.db
 
 # Allure reports
+.allure
 /allure-report/
 /allure-results/
 /target/allure-report/
