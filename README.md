@@ -12,6 +12,8 @@ To run the tests, the following dependencies are required:
 
 These dependencies are handled automatically via `pom.xml`.
 
+> ⚠️ **Note:** While smaller Docker images like Alpine reduce image size, they are not recommended for Playwright tests due to missing system libraries (like `glibc`). Use Debian- or Ubuntu-based images (like `maven:3.9.4-eclipse-temurin-17`) for full compatibility with Playwright.
+
 ---
 
 ## ⚙️ Installation
@@ -152,4 +154,23 @@ Once deployed, your Allure report will be live at:
 ```
 https://<your-username>.github.io/<your-repo>/
 ```
+
+> ❗️If WebKit tests fail on GitHub Actions with missing dependencies (e.g. `libgtk-4.so.1`), make sure your Docker image includes Playwright browser system dependencies.
+
+You can do this in your `Dockerfile` by installing:
+
+```Dockerfile
+RUN apt-get update && apt-get install -y \
+    libgtk-4-1 libgtk-3-0 libnss3 libx11-xcb1 libxcomposite1 \
+    libxdamage1 libxrandr2 libgbm1 libxss1 libasound2 \
+    libatk1.0-0 libatk-bridge2.0-0 libxinerama1 libxext6 \
+    libxfixes3 libxrender1 libxcb1 libx11-6
+```
+
+Or, for Node environments:
+```bash
+npx playwright install-deps
+```
+
+Ensure this is run before test execution.
 
