@@ -2,6 +2,7 @@ package testUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.testng.annotations.AfterClass;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -40,7 +41,6 @@ public class AllureMetadataWriter {
             props.store(writer, "Allure Environment");
         }
     }
-
 
     private static void writeExecutorJson() throws IOException {
         Map<String, String> executor = new HashMap<>();

@@ -12,15 +12,15 @@ import utils.BrowserManager;
 import utils.ConfigReader;
 
 import java.lang.reflect.Method;
-import java.util.List;
 
 @Listeners({io.qameta.allure.testng.AllureTestNg.class})
-@Epic("Kanban Board")
+@Epic("Kanban BoardInteractions")
 @Feature("Tile Management")
-public class Board {
+public class BoardInteractions {
 
     KanbanBoardPage boardPage;
     BrowserManager.BrowserTypeEnum currentBrowser;
+    protected Page testPage;
 
     @DataProvider(name = "browsers", parallel = true)
     public Object[][] provideBrowsers() {
@@ -54,13 +54,14 @@ public class Board {
             boardPage = new KanbanBoardPage(page);
             boardPage.navigateToBoard(); // here uses config-based URL
 
-            Allure.step("Verify board is loaded", () -> {
-                boolean isVisible = page.locator("//div[contains(@class, 'kanban-board-container')]").isVisible();
+            Allure.step("Verify board is loaded and attach screenshot", () -> {
+                boolean isVisible = page.locator("//*[@id='content']/board/div/board-filter").isVisible();
+                AllureUtils.attachScreenshot(page, "BoardInteractions Loaded from " + ConfigReader.getEnv());
                 Assert.assertTrue(isVisible, "Kanban board should be visible.");
             });
 
             Allure.step("Attach screenshot", () -> {
-                AllureUtils.attachScreenshot(page, "Board Loaded from " + ConfigReader.getEnv());
+                AllureUtils.attachScreenshot(page, "BoardInteractions Loaded from " + ConfigReader.getEnv());
             });
         });
     }
@@ -69,7 +70,7 @@ public class Board {
     @Severity(SeverityLevel.CRITICAL)
     @Description("Change tile status on multiple browsers")
     public void changeTileStatusTest(BrowserManager.BrowserTypeEnum browserType) throws InterruptedException {
-        // ✅ Set result dir early for Allure
+        // Set result dir early for Allure
         String resultDir = "target/allure-results-" + browserType.name().toLowerCase() + "-" + Thread.currentThread().getId();
         System.setProperty("allure.results.directory", resultDir);
 
@@ -83,22 +84,61 @@ public class Board {
         });
     }
 
+    @Test(dataProvider = "browsers")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Change issue status and verify it no longer appears in original column")
+    public void verifyTileMovedToTargetColumn(BrowserManager.BrowserTypeEnum browserType) throws InterruptedException {
+        runOnBrowser(browserType, page -> {
+            Allure.parameter("browser", browserType.name());
+            Allure.parameter("env", ConfigReader.getEnv());
+            Allure.parameter("baseUrl", ConfigReader.getBaseUrl());
+
+            boardPage = new KanbanBoardPage(page);
+
+            final String tileText = "Angular Spotify";
+            final String sourceColumn = "Backlog";
+            final String targetColumn = "Selected for Development";
+
+            Allure.step("Navigate to Kanban board", () -> {
+                boardPage.navigateToBoard();
+            });
+
+            Allure.step("Change status of tile '" + tileText + "' from '" + sourceColumn + "' to '" + targetColumn + "'", () -> {
+                boardPage.changeTileStatus(tileText, sourceColumn, targetColumn);
+            });
+
+            Allure.step("Verify tile is no longer in source column: " + sourceColumn, () -> {
+                boolean isStillInSource = boardPage.isTileVisibleInColumn(tileText, sourceColumn);
+                Assert.assertFalse(isStillInSource, " Tile should no longer be in '" + sourceColumn + "'");
+            });
+
+            Allure.step("Verify tile is present in target column: " + targetColumn, () -> {
+                boolean isNowInTarget = boardPage.isTileVisibleInColumn(tileText, targetColumn);
+                Assert.assertTrue(isNowInTarget, "✅ Tile should now be in '" + targetColumn + "'");
+            });
+
+            Allure.step("Capture board state after move", () -> {
+                AllureUtils.attachScreenshot(page, "After Tile Move");
+            });
+        });
+    }
+
 
 
     private void runOnBrowser(BrowserManager.BrowserTypeEnum browserType, BrowserTestLogic logic) throws InterruptedException {
-        try {
-            BrowserManager.launchBrowser(browserType, true);
+
+            BrowserManager.launchBrowser(browserType, false);
             BrowserManager.createContextAndPage();
             Page page = BrowserManager.getPage();
             boardPage = new KanbanBoardPage(page);
             boardPage.navigateToBoard();
 
             logic.run(page);
-        } finally {
-            BrowserManager.closeContext();
-            BrowserManager.closeBrowser();
-        }
+
+
     }
+
+
 
     @FunctionalInterface
     interface BrowserTestLogic {
@@ -112,11 +152,16 @@ public class Board {
 
     @AfterMethod(alwaysRun = true)
     public void attachScreenshotOnFailure(ITestResult result) {
-        if (!result.isSuccess()) {
-            Page page = BrowserManager.getPage();
-            if (page != null) {
-                AllureUtils.attachScreenshot(page, "Failure Screenshot");
-            }
+        Page page = BrowserManager.getPage(); // get page before teardown
+        if (!result.isSuccess() && page != null) {
+            AllureUtils.attachScreenshot(page, "Failure Screenshot: " + result.getMethod().getMethodName());
+        }
+
+        try {
+            BrowserManager.closeContext();
+            BrowserManager.closeBrowser();
+        } catch (Exception e) {
+            System.err.println("Teardown failed: " + e.getMessage());
         }
     }
 }

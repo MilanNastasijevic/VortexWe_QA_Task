@@ -1,6 +1,7 @@
 package PageObjects;
 
 import com.microsoft.playwright.*;
+import utils.ConfigReader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,59 @@ public class KanbanBoardPage extends BasePage {
     public KanbanBoardPage(Page page) {
         super(page);
     }
+
+    public void navigateToBoard() {
+        String boardUrl = ConfigReader.getBaseUrl() + "/project/board";
+        page.navigate(boardUrl);
+        page.waitForSelector("//*[@id='content']");
+        System.out.println("Base URL: " + ConfigReader.getBaseUrl());
+        System.out.println("ENV: " + ConfigReader.getEnv());
+    }
+
+
+
+
+    public void moveTileToColumn(String tileText, String sourceColumn, String targetColumn) {
+        // Locate the source column
+
+        Locator sourceCol = page.locator(String.format(
+                "//div[contains(normalize-space(),'%s')", sourceColumn
+        ));
+
+        // Locate the tile within the source column
+        Locator tileToMove = sourceCol.locator(String.format(
+                "//*[@id='Backlog']/issue-card[1]/div/div", tileText
+        ));
+
+        // Locate the target column
+        Locator targetCol = page.locator(String.format(
+                "//div[contains(normalize-space(),'%s')", targetColumn
+        ));
+
+        // Perform the drag-and-drop action
+        tileToMove.dragTo(targetCol);
+    }
+
+    public int getIssueCountForColumn(String columnName) {
+
+        Locator column = page.locator(String.format(
+                "//*[@id='%s']", columnName
+        ));
+
+        Locator issueCard = column.locator("issue-card");
+
+        return issueCard.count();
+    }
+
+    public boolean isTileVisibleInColumn(String tileText, String columnName) {
+        Locator column = page.locator(String.format(
+                "//*[@id='%s']", columnName
+        ));
+
+        Locator tile = column.locator(String.format("//p[contains(text(), '%s')]", tileText));
+        return tile.isVisible();
+    }
+
 
     public void changeTileStatus(String tileText, String currentStatusText, String newStatusText) {
         waitForClick(getElementByText("p", tileText));
@@ -82,6 +136,8 @@ public class KanbanBoardPage extends BasePage {
 
         wait(2000);
     }
+
+
 
 
 }

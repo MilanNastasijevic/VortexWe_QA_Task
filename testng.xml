@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="Board Test Suite" parallel="methods" thread-count="3">
+<suite name="Board Test Suite" parallel="methods" thread-count="2">
     <test name="Cross-Browser Kanban Tests">
         <classes>
-            <class name="Jira.Board"/>
+            <class name="Jira.BoardInteractions"/>
         </classes>
     </test>
     <listeners>

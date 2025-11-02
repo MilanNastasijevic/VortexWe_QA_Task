@@ -1,12 +1,18 @@
 package utils;
 
 import com.microsoft.playwright.Page;
-import io.qameta.allure.Attachment;
+import io.qameta.allure.Allure;
+
+import java.io.ByteArrayInputStream;
 
 public class AllureUtils {
 
-    @Attachment(type = "image/png")
-    public static byte[] attachScreenshot(Page page) {
-        return page.screenshot(new Page.ScreenshotOptions().setFullPage(true));
+    public static void attachScreenshot(Page page, String name) {
+        try {
+            byte[] screenshot = page.screenshot(new Page.ScreenshotOptions().setFullPage(true));
+            Allure.addAttachment(name, "image/png", new ByteArrayInputStream(screenshot), ".png");
+        } catch (Exception e) {
+            System.out.println("Screenshot capture failed: " + e.getMessage());
+        }
     }
 }
