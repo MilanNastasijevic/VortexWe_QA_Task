@@ -1,4 +1,4 @@
-#  VortexWe QA Engineer Task – Jira Clone Testing
+# Engineer Task – Jira Clone Testing
 
 This repository contains E2E tests for a Jira Clone app built with Angular and Akita. The framework used is **Playwright + TestNG**, and the project supports execution via **Docker**, with integrated **Allure reporting**.
 
